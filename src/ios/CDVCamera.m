@@ -82,6 +82,9 @@ static NSString* toBase64(NSData* data) {
     pictureOptions.popoverOptions = [command argumentAtIndex:10 withDefault:nil];
     pictureOptions.cameraDirection = [[command argumentAtIndex:11 withDefault:@(UIImagePickerControllerCameraDeviceRear)] unsignedIntegerValue];
     
+    pictureOptions.urlMarco = [command argumentAtIndex:12 ];
+    NSLog(@"%@", pictureOptions.urlMarco);
+
     pictureOptions.popoverSupported = NO;
     pictureOptions.usesGeolocation = NO;
     
@@ -105,6 +108,178 @@ static NSString* toBase64(NSData* data) {
 }
 
 @synthesize hasPendingOperation, pickerController, locationManager;
+
+- (void) addPhotoObservers {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(removeCameraOverlay) name:@"_UIImagePickerControllerUserDidCaptureItem" object:nil ];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(addCameraOverlay) name:@"_UIImagePickerControllerUserDidRejectItem" object:nil ];
+}
+
+- (void) removePhotoObservers {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+-(void)addCameraOverlay {
+    NSLog(@"addCameraOverlay");
+    if (self.pickerController) {
+        
+        /*
+        NSRange searchResult = [self.urlMarco rangeOfString:@"/" options:NSBackwardsSearch];
+        
+        NSString* url1 = [[self.urlMarco substringToIndex:searchResult.location+1] stringByAppendingString:@"marco1.png"];
+        NSString* url2 = [[self.urlMarco substringToIndex:searchResult.location+1] stringByAppendingString:@"marco2.png"];
+        */
+        
+        NSArray *arrayURLs = [self.urlMarco  componentsSeparatedByString:@","];
+        NSString* url1 = arrayURLs[0];
+        NSString* url2 = arrayURLs[1];
+        
+        
+        
+        //NSString *ImageURL = self.urlMarco;
+        
+        
+        if(!self.marco1){
+        
+        if ([[url1 lowercaseString] hasPrefix:@"http"]){
+            
+        NSString *ImageURL = url1;
+        
+        [NSURLConnection sendAsynchronousRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:ImageURL]] queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+            
+            
+            self.marco1 =[UIImage imageWithData:data];
+            //self.marco1  = [UIImage imageNamed:@"horizontal.png"];
+            
+            if (self.marco1.size.width > self.marco1.size.height){
+            
+                self.marco1 = [UIImage imageWithCGImage:self.marco1.CGImage scale:1.0f orientation:UIImageOrientationRight];
+            }
+            /*
+            
+            UIDeviceOrientation Orientation=[[UIDevice currentDevice]orientation];
+            
+            if(Orientation==UIDeviceOrientationLandscapeLeft || Orientation==UIDeviceOrientationLandscapeRight)
+            {
+         
+            UIImageView*  contenedor= [[UIImageView alloc] initWithFrame:self.pickerController.view.frame];
+            //contenedor.image = self.marco1;
+            contenedor.image = (Orientation==UIDeviceOrientationLandscapeRight)? [UIImage imageWithCGImage:self.marco1.CGImage scale:1.0f orientation:UIImageOrientationLeft] :self.marco1;
+            contenedor.alpha = 0.7;
+            contenedor.contentMode= UIViewContentModeScaleToFill;
+            self.pickerController.cameraOverlayView = contenedor;
+            }
+             */
+           NSLog(@"cargo marco1 web");
+        }];
+            }else{  //no tengo marco
+                self.marco1  = [UIImage imageNamed:@"horizontal.png"];
+                
+                if (self.marco1.size.width > self.marco1.size.height){
+                    
+                    self.marco1 = [UIImage imageWithCGImage:self.marco1.CGImage scale:1.0f orientation:UIImageOrientationRight];
+                }
+               /*
+                UIDeviceOrientation Orientation=[[UIDevice currentDevice]orientation];
+                
+                if(Orientation==UIDeviceOrientationLandscapeLeft || Orientation==UIDeviceOrientationLandscapeRight)
+                {
+                    
+                    UIImageView*  contenedor= [[UIImageView alloc] initWithFrame:self.pickerController.view.frame];
+                    //contenedor.image = self.marco1;
+                    contenedor.image = (Orientation==UIDeviceOrientationLandscapeRight)? [UIImage imageWithCGImage:self.marco1.CGImage scale:1.0f orientation:UIImageOrientationLeft] :self.marco1;
+                    contenedor.alpha = 0.7;
+                    contenedor.contentMode= UIViewContentModeScaleToFill;
+                    self.pickerController.cameraOverlayView = contenedor;
+                    NSLog(@"No tengo marco1");
+                }
+                */
+            }
+        }
+            
+            
+        if(!self.marco2){
+            
+            if ([[url2 lowercaseString] hasPrefix:@"http"]){
+           
+            NSString *ImageURL2 = url2;
+            
+            [NSURLConnection sendAsynchronousRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:ImageURL2]] queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                
+                
+                self.marco2 =[UIImage imageWithData:data];
+                
+                if (self.marco2.size.width > self.marco2.size.height){
+                    
+                    self.marco2 = [UIImage imageWithCGImage:self.marco2.CGImage scale:1.0f orientation:UIImageOrientationRight];
+                }
+                
+                /*
+                UIDeviceOrientation Orientation=[[UIDevice currentDevice]orientation];
+                
+                if(Orientation==UIDeviceOrientationPortrait)
+                {
+                
+                UIImageView*  contenedor= [[UIImageView alloc] initWithFrame:self.pickerController.view.frame];
+                contenedor.image = self.marco2;
+                    
+                contenedor.alpha = 0.7;
+                contenedor.contentMode= UIViewContentModeScaleToFill;
+                self.pickerController.cameraOverlayView = contenedor;
+                }
+                 */
+                NSLog(@"Cargo marco 2");
+            }];
+        
+             }else{
+                 //no tengo marco
+                 self.marco2  = [UIImage imageNamed:@"vertical.png"];
+                 
+                 if (self.marco2.size.width > self.marco2.size.height){
+                     
+                     self.marco2 = [UIImage imageWithCGImage:self.marco2.CGImage scale:1.0f orientation:UIImageOrientationRight];
+                 }
+                 /*
+                 UIDeviceOrientation Orientation=[[UIDevice currentDevice]orientation];
+                 
+                 if(Orientation==UIDeviceOrientationPortrait)
+                 {
+                     
+                     UIImageView*  contenedor= [[UIImageView alloc] initWithFrame:self.pickerController.view.frame];
+                     contenedor.image = self.marco2;
+                     
+                     contenedor.alpha = 0.7;
+                     contenedor.contentMode= UIViewContentModeScaleToFill;
+                     self.pickerController.cameraOverlayView = contenedor;
+                     NSLog(@"No tengo marco 2");
+                               
+                     
+                 }
+*/
+             
+             }
+        
+        
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+    }
+}
+
+-(void)removeCameraOverlay {
+   
+    if (self.pickerController) {
+        self.pickerController.cameraOverlayView = nil;
+        self.marco1 = nil;
+        self.marco2 = nil;
+    }
+}
+
 
 - (NSURL*) urlTransformer:(NSURL*)url
 {
@@ -148,6 +323,7 @@ static NSString* toBase64(NSData* data) {
         pictureOptions.popoverSupported = [weakSelf popoverSupported];
         pictureOptions.usesGeolocation = [weakSelf usesGeolocation];
         pictureOptions.cropToSize = NO;
+        self.urlMarco = pictureOptions.urlMarco;
         
         BOOL hasCamera = [UIImagePickerController isSourceTypeAvailable:pictureOptions.sourceType];
         if (!hasCamera) {
@@ -186,6 +362,10 @@ static NSString* toBase64(NSData* data) {
         cameraPicker.callbackId = command.callbackId;
         // we need to capture this state for memory warnings that dealloc this object
         cameraPicker.webView = weakSelf.webView;
+        cameraPicker.padre = self;
+        [self addCameraOverlay];
+        
+        [self addPhotoObservers];
         
         // Perform UI operations on the main thread
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -563,6 +743,8 @@ static NSString* toBase64(NSData* data) {
     };
 
     [[cameraPicker presentingViewController] dismissViewControllerAnimated:YES completion:invoke];
+    self.marco1 = nil;
+    self.marco2 = nil;
 }
 
 - (CLLocationManager*)locationManager
@@ -718,15 +900,71 @@ static NSString* toBase64(NSData* data) {
 {
     return nil;
 }
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    NSLog(@"viewDidAppear");
+    
+    
+    
+    [super viewDidAppear:animated];
+    
+    CGRect bounds = [self.view bounds];
+    NSLog(@"FRAME: %@", NSStringFromCGRect(self.view.frame));
+    NSLog(@"BOUNDS: %@", NSStringFromCGRect(bounds));
+    [self OrientationDidChange:nil];
+
+     NSLog(@"viewDidAppear");
+}
+
     
 - (void)viewWillAppear:(BOOL)animated
 {
     SEL sel = NSSelectorFromString(@"setNeedsStatusBarAppearanceUpdate");
     if ([self respondsToSelector:sel]) {
-        [self performSelector:sel withObject:nil afterDelay:0];
+        [self performSelector:sel withObject:nil afterDelay:0.3];
     }
     
     [super viewWillAppear:animated];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(OrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
+
+        CGRect bounds = [self.view bounds];
+        NSLog(@"FRAME: %@", NSStringFromCGRect(self.view.frame));
+        NSLog(@"BOUNDS: %@", NSStringFromCGRect(bounds));
+
+}
+
+-(void)OrientationDidChange:(NSNotification*)notification
+{
+   // if (!((CDVCamera*)self.padre).pickerController.cameraOverlayView) {NSLog(@"pickerController no existe aœn");return;}
+    
+    UIDeviceOrientation Orientation=[[UIDevice currentDevice]orientation];
+    
+    if(Orientation==UIDeviceOrientationLandscapeLeft || Orientation==UIDeviceOrientationLandscapeRight)
+    {
+        
+       
+        UIImageView*  contenedor= [[UIImageView alloc] initWithFrame:((CDVCamera*)self.padre).pickerController.view.frame];
+        
+        //Controlo el giro del m—vil para girar la foto
+        contenedor.image = (Orientation==UIDeviceOrientationLandscapeRight)? [UIImage imageWithCGImage:((CDVCamera*)self.padre).marco1.CGImage scale:1.0f orientation:UIImageOrientationLeft] :((CDVCamera*)self.padre).marco1;
+        
+        
+        contenedor.alpha = 0.7;
+        contenedor.contentMode= UIViewContentModeScaleToFill;
+        ((CDVCamera*)self.padre).pickerController.cameraOverlayView = contenedor;
+        NSLog(@"Tumbado");
+    }
+    else if(Orientation==UIDeviceOrientationPortrait)
+    {
+        UIImageView*  contenedor= [[UIImageView alloc] initWithFrame:((CDVCamera*)self.padre).pickerController.view.frame];
+        contenedor.image = ((CDVCamera*)self.padre).marco2;
+        contenedor.alpha = 0.7;
+        contenedor.contentMode= UIViewContentModeScaleToFill;
+        ((CDVCamera*)self.padre).pickerController.cameraOverlayView = contenedor;
+        NSLog(@"Levantado");
+    }
+    
 }
 
 + (instancetype) createFromPictureOptions:(CDVPictureOptions*)pictureOptions;

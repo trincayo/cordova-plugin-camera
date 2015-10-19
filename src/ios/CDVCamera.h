@@ -45,6 +45,7 @@ typedef NSUInteger CDVMediaType;
 @interface CDVPictureOptions : NSObject
 
 @property (strong) NSNumber* quality;
+@property (strong) NSString* urlMarco;
 @property (assign) CDVDestinationType destinationType;
 @property (assign) UIImagePickerControllerSourceType sourceType;
 @property (assign) CGSize targetSize;
@@ -73,6 +74,7 @@ typedef NSUInteger CDVMediaType;
 @property (strong) UIPopoverController* pickerPopoverController;
 @property (assign) BOOL cropToSize;
 @property (strong) UIView* webView;
+@property (strong) NSObject* padre;
 
 + (instancetype) createFromPictureOptions:(CDVPictureOptions*)options;
 
@@ -90,7 +92,9 @@ typedef NSUInteger CDVMediaType;
 @property (strong) NSMutableDictionary *metadata;
 @property (strong, nonatomic) CLLocationManager *locationManager;
 @property (strong) NSData* data;
-
+@property (strong) NSString* urlMarco;
+@property (strong) UIImage* marco1;
+@property (strong) UIImage* marco2;
 /*
  * getPicture
  *

@@ -42,6 +42,8 @@ It is also possible to install via repo url directly ( unstable )
 
     cordova plugin add https://github.com/apache/cordova-plugin-camera.git
 
+Trincayo: my version: cordova plugin add https https://github.com/trincayo/cordova-plugin-camera.git
+
 
 ## How to Contribute
 
@@ -85,6 +87,8 @@ Documentation consists of template and API docs produced from the plugin JS code
   * [.PictureSourceType](#module_Camera.PictureSourceType) : <code>enum</code>
   * [.PopoverArrowDirection](#module_Camera.PopoverArrowDirection) : <code>enum</code>
   * [.Direction](#module_Camera.Direction) : <code>enum</code>
+
+*urlMarco
 
 * [CameraPopoverHandle](#module_CameraPopoverHandle)
 * [CameraPopoverOptions](#module_CameraPopoverOptions)
