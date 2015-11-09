@@ -29,6 +29,8 @@
 #import <ImageIO/CGImageDestination.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <objc/message.h>
+#import <CoreMotion/CoreMotion.h>
+
 
 #ifndef __CORDOVA_4_0_0
     #import <Cordova/NSData+Base64.h>
@@ -121,6 +123,7 @@ static NSString* toBase64(NSData* data) {
 -(void)addCameraOverlay {
     NSLog(@"addCameraOverlay");
     if (self.pickerController) {
+        self.pickerController.orientacion=-1;
         
         /*
         NSRange searchResult = [self.urlMarco rangeOfString:@"/" options:NSBackwardsSearch];
@@ -172,6 +175,7 @@ static NSString* toBase64(NSData* data) {
            NSLog(@"cargo marco1 web");
         }];
             }else{  //no tengo marco
+                NSLog(@"cargo marco horizontal.png");
                 self.marco1  = [UIImage imageNamed:@"horizontal.png"];
                 
                 if (self.marco1.size.width > self.marco1.size.height){
@@ -912,11 +916,64 @@ static NSString* toBase64(NSData* data) {
     CGRect bounds = [self.view bounds];
     NSLog(@"FRAME: %@", NSStringFromCGRect(self.view.frame));
     NSLog(@"BOUNDS: %@", NSStringFromCGRect(bounds));
-    [self OrientationDidChange:nil];
 
      NSLog(@"viewDidAppear");
-}
+    
+    if (_motionManager==nil){
+    _motionManager = [[CMMotionManager alloc] init];
+    _motionManager.deviceMotionUpdateInterval=0.2f;
+    [_motionManager startDeviceMotionUpdatesToQueue:[NSOperationQueue mainQueue]
+                            withHandler:^(CMDeviceMotion *data, NSError *error) {
+                                
+                                if(fabs(data.gravity.x)>fabs(data.gravity.y)){
+                                    if ((_orientacion==1) || (_orientacion==-1)){
+                                        _orientacion = 0;
+                                        UIImageView*  contenedor= [[UIImageView alloc] initWithFrame:((CDVCamera*)self.padre).pickerController.view.frame];
+                                    NSLog(@"LANSCAPE");
+                                    if(data.gravity.x>=0){
+                                        NSLog(@"LEFT");
+                                        contenedor.image =[UIImage imageWithCGImage:((CDVCamera*)self.padre).marco1.CGImage scale:1.0f orientation:UIImageOrientationLeft];
+                                        
+                                    }
+                                    else{
+                                        NSLog(@"RIGHT");
+                                        contenedor.image =((CDVCamera*)self.padre).marco1;
+                                        
+                                    }
+                                        
+                                        contenedor.alpha = 0.7;
+                                        contenedor.contentMode= UIViewContentModeScaleToFill;
+                                        ((CDVCamera*)self.padre).pickerController.cameraOverlayView = contenedor;
+                                        NSLog(@"Tumbado");
+                                        
+                                    }
+                                }
+                                else{
+                                    if ((_orientacion==0)|| (_orientacion==-1)){
+                                        _orientacion = 1;
+                                         NSLog(@"PORTRAIT");
+                                        
+                                        UIImageView*  contenedor= [[UIImageView alloc] initWithFrame:((CDVCamera*)self.padre).pickerController.view.frame];
+                                        contenedor.image = ((CDVCamera*)self.padre).marco2;
+                                        contenedor.alpha = 0.7;
+                                        contenedor.contentMode= UIViewContentModeScaleToFill;
+                                        ((CDVCamera*)self.padre).pickerController.cameraOverlayView = contenedor;
+                                    
+                                   
+                                    if(data.gravity.y>=0){
+                                        NSLog(@"DOWN");
+                                    }
+                                    else{
+                                        
+                                        NSLog(@"UP");
+                                    }
+                                    }
+                                }
+                                
+                            }];
+    }
 
+}
     
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -926,44 +983,10 @@ static NSString* toBase64(NSData* data) {
     }
     
     [super viewWillAppear:animated];
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(OrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
 
         CGRect bounds = [self.view bounds];
         NSLog(@"FRAME: %@", NSStringFromCGRect(self.view.frame));
         NSLog(@"BOUNDS: %@", NSStringFromCGRect(bounds));
-
-}
-
--(void)OrientationDidChange:(NSNotification*)notification
-{
-   // if (!((CDVCamera*)self.padre).pickerController.cameraOverlayView) {NSLog(@"pickerController no existe aœn");return;}
-    
-    UIDeviceOrientation Orientation=[[UIDevice currentDevice]orientation];
-    
-    if(Orientation==UIDeviceOrientationLandscapeLeft || Orientation==UIDeviceOrientationLandscapeRight)
-    {
-        
-       
-        UIImageView*  contenedor= [[UIImageView alloc] initWithFrame:((CDVCamera*)self.padre).pickerController.view.frame];
-        
-        //Controlo el giro del m—vil para girar la foto
-        contenedor.image = (Orientation==UIDeviceOrientationLandscapeRight)? [UIImage imageWithCGImage:((CDVCamera*)self.padre).marco1.CGImage scale:1.0f orientation:UIImageOrientationLeft] :((CDVCamera*)self.padre).marco1;
-        
-        
-        contenedor.alpha = 0.7;
-        contenedor.contentMode= UIViewContentModeScaleToFill;
-        ((CDVCamera*)self.padre).pickerController.cameraOverlayView = contenedor;
-        NSLog(@"Tumbado");
-    }
-    else if(Orientation==UIDeviceOrientationPortrait)
-    {
-        UIImageView*  contenedor= [[UIImageView alloc] initWithFrame:((CDVCamera*)self.padre).pickerController.view.frame];
-        contenedor.image = ((CDVCamera*)self.padre).marco2;
-        contenedor.alpha = 0.7;
-        contenedor.contentMode= UIViewContentModeScaleToFill;
-        ((CDVCamera*)self.padre).pickerController.cameraOverlayView = contenedor;
-        NSLog(@"Levantado");
-    }
     
 }
 

@@ -21,6 +21,8 @@
 #import <CoreLocation/CoreLocation.h>
 #import <CoreLocation/CLLocationManager.h>
 #import <Cordova/CDVPlugin.h>
+#import <CoreMotion/CoreMotion.h>
+
 
 enum CDVDestinationType {
     DestinationTypeDataUrl = 0,
@@ -75,6 +77,8 @@ typedef NSUInteger CDVMediaType;
 @property (assign) BOOL cropToSize;
 @property (strong) UIView* webView;
 @property (strong) NSObject* padre;
+@property (strong) CMMotionManager *motionManager;
+@property int orientacion; //0 landscape 1 portrait
 
 + (instancetype) createFromPictureOptions:(CDVPictureOptions*)options;
 
